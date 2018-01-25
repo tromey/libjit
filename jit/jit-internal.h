@@ -492,6 +492,7 @@ struct _jit_function
 
 	/* The entry point for the function's compiled code */
 	void * volatile		entry_point;
+	void * volatile		code_end;
 
 	/* The function to call to perform on-demand compilation */
 	jit_on_demand_func	on_demand;

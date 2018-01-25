@@ -841,6 +841,7 @@ jit_compile(jit_function_t func)
 	if(result == JIT_RESULT_OK)
 	{
 		func->entry_point = state.gen.code_start;
+		func->code_end = state.gen.code_end;
 		func->is_compiled = 1;
 
 		/* Free the builder structure, which we no longer require */
