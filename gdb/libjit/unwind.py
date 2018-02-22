@@ -78,7 +78,7 @@ class LibjitUnwinder(gdb.unwinder.Unwinder):
         pc = long(pc)
         # FIXME - there's no way to get this generally,
         # so this is Emacs-specific.
-        context = gdb.lookup_global_symbol("emacs_jit_context").value()
+        context = gdb.lookup_global_symbol("_jit_context_list").value()
         if long(context) == 0:
             return False
         func = context['functions']

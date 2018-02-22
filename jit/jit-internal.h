@@ -588,6 +588,10 @@ struct _jit_context
 
 	/* On-demand compilation driver */
 	jit_on_demand_driver_func	on_demand_driver;
+
+	/* Contexts are kept on a linked list for gdb.  */
+	jit_context_t		next;
+	jit_context_t		prev;
 };
 
 void *_jit_malloc_exec(unsigned int size);

@@ -64,6 +64,10 @@ ultimately destroy JIT contexts:
 
 @*/
 
+/* All contexts are kept on a linked list.  This is used by the gdb
+   support, which is why this is not static.  */
+jit_context_t _jit_context_list;
+
 /*@
  * @deftypefun jit_context_t jit_context_create (void)
  * Create a new context block for the JIT.  Returns NULL
@@ -92,6 +96,16 @@ jit_context_create(void)
 	context->last_function = 0;
 	context->on_demand_driver = _jit_function_compile_on_demand;
 	context->memory_manager = jit_default_memory_manager();
+
+	/* Link the context into the global list.  */
+	jit_mutex_lock(&_jit_global_lock);
+	context->next = _jit_context_list;
+	_jit_context_list = context;
+	context->prev = NULL;
+	if (context->next)
+	  context->next->prev = context;
+	jit_mutex_unlock(&_jit_global_lock);
+
 	return context;
 }
 
@@ -111,6 +125,16 @@ jit_context_destroy(jit_context_t context)
 	{
 		return;
 	}
+
+	/* Unlink the context from the global list.  */
+	jit_mutex_lock(&_jit_global_lock);
+	if (context->next)
+	  context->next->prev = context->prev;
+	if (context->prev)
+	  context->prev->next = context->next;
+	else
+	  _jit_context_list = context->next;
+	jit_mutex_unlock(&_jit_global_lock);
 
 	for(sym = 0; sym < context->num_registered_symbols; ++sym)
 	{
